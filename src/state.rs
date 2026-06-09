@@ -3,7 +3,7 @@ use bytes::Bytes;
 use tokio::sync::{broadcast, watch, Mutex, Notify};
 use crate::metadata::TrackInfo;
 
-pub const CHUNK_SIZE: usize = 3000;
+pub const CHUNK_SIZE: u32 = 3000;
 pub const CHANNEL_CAPACITY: usize = 128;
 
 #[derive(Clone)]
