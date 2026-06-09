@@ -1,6 +1,6 @@
 use std::time::Duration;
 use crate::{metadata::TrackInfo, state::{AppState, CHUNK_SIZE}};
-const INTERVAL: Duration = Duration::from_millis(100);
+const INTERVAL: Duration = Duration::from_millis(500);
 
 use log::{info, error};
 
