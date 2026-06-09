@@ -30,9 +30,11 @@ pub async fn run(state: AppState) {
         let chunk_size = ((track_bitrate * 1000 / 8) * INTERVAL.as_millis() as u32 / 1000) as usize;
         match tokio::fs::read(&path).await {
             Ok(data) => {
-                for chunk in data.chunks(chunk_size) {
+                let start = tokio::time::Instant::now();
+                for (i, chunk) in data.chunks(chunk_size).enumerate() {
                     let _ = state.tx.send(bytes::Bytes::copy_from_slice(chunk));
-                    tokio::time::sleep(INTERVAL).await;
+                    let next_tick = start + INTERVAL * (i as u32 + 1);
+                    tokio::time::sleep_until(next_tick).await;
                 }
             }
             Err(e) => eprintln!("Failed to read {:?}: {e}", path),
