@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>chqn fm</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 2rem;
+    }
+    h1 { font-size: 1.2rem; letter-spacing: 0.2em; color: #888; }
+    #now-playing { text-align: center; line-height: 1.8; }
+    #title  { font-size: 1.6rem; font-weight: bold; }
+    #artist { font-size: 1.1rem; color: #aaa; }
+    #album  { font-size: 0.9rem; color: #666; }
+    audio { width: 320px; }
+  </style>
+</head>
+<body>
+  <h1>chqn fm</h1>
+  <div id="now-playing">
+    <div id="title">{{ title }}</div>
+    <div id="artist">{{ artist }}</div>
+    <div id="album">{{ album }}</div>
+  </div>
+  <audio controls autoplay>
+    <source src="/stream" type="audio/mpeg">
+  </audio>
+  <script>
+    function updateDisplay(t) {
+      document.getElementById('title').textContent  = t.title  ?? '—';
+      document.getElementById('artist').textContent = t.artist ?? '—';
+      document.getElementById('album').textContent  = t.album  ?? '—';
+    }
+
+    const es = new EventSource('/metadata/stream');
+    es.addEventListener('track', e => updateDisplay(JSON.parse(e.data)));
+  </script>
+</body>
+</html>
