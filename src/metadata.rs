@@ -1,17 +1,14 @@
 use std::path::Path;
-use id3::TagLike;
 use lofty::{
-    error::LoftyError, file::{AudioFile, TaggedFileExt}, probe::Probe, properties, read_from_path, tag::Accessor
+    file::{AudioFile, TaggedFileExt}, probe::Probe,  tag::Accessor
 };
 use serde::Serialize;
-
-
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize)]
 pub enum TrackInfoError {
-    Io(std::io::Error),
-    TagRead(lofty::error::LoftyError),
+    Io(String),
+    TagRead(String),
     NoTag,
     NoBitrate,
 }
@@ -29,25 +26,24 @@ impl fmt::Display for TrackInfoError {
 
 impl std::error::Error for TrackInfoError {}
 
-// From impls let you use ? operator to auto-convert errors
 impl From<std::io::Error> for TrackInfoError {
     fn from(e: std::io::Error) -> Self {
-        TrackInfoError::Io(e)
+        TrackInfoError::Io(e.to_string())
     }
 }
 
 impl From<lofty::error::LoftyError> for TrackInfoError {
     fn from(e: lofty::error::LoftyError) -> Self {
-        TrackInfoError::TagRead(e)
+        TrackInfoError::TagRead(e.to_string())
     }
 }
 
 #[derive(Clone, Debug, Serialize)]
 pub struct TrackInfo {
-    pub title:   Option<String>,
-    pub artist:  Option<String>,
-    pub album:   Option<String>,
-    pub bitrate: u32,
+    pub title:   String,
+    pub artist:  String,
+    pub album:   String,
+    pub bitrate: Result<u32, TrackInfoError>,
     pub path:    String,
 }
 
@@ -57,10 +53,10 @@ impl TrackInfo {
         let tag = file.primary_tag().ok_or(TrackInfoError::NoTag)?; 
         let properties = file.properties();
         Ok(Self {
-            title:   tag.title().map(|s| s.to_string()),
-            artist:  tag.artist().map(|s| s.to_string()),
-            album:   tag.album().map(|s| s.to_string()),
-            bitrate: properties.audio_bitrate().ok_or(TrackInfoError::NoBitrate)?,
+            title:   tag.title().map(|s| s.to_string()).unwrap_or("Unknown Title".into()),
+            artist:  tag.artist().map(|s| s.to_string()).unwrap_or("Unknown Artist".into()),
+            album:   tag.album().map(|s| s.to_string()).unwrap_or("Unknown Album".into()),
+            bitrate: properties.audio_bitrate().ok_or(TrackInfoError::NoBitrate),
             path:    path.display().to_string(),
         })
     }

@@ -22,9 +22,9 @@ struct IndexTemplate {
 
 pub async fn index(State(state): State<AppState>) -> impl IntoResponse {
     let info = state.meta_rx.borrow().clone().unwrap();
-    let title = info.title.clone().unwrap_or("unknown title".into());
-    let artist = info.artist.clone().unwrap_or("unknown artist".into());
-    let album = info.album.clone().unwrap_or("unknown album".into());
+    let title = info.title.clone();
+    let artist = info.artist.clone();
+    let album = info.album.clone();
 
     IndexTemplate {
         title,

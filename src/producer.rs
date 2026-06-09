@@ -1,6 +1,6 @@
 use std::time::Duration;
 use crate::{metadata::TrackInfo, state::{AppState, CHUNK_SIZE}};
-use log::info;
+use log::{info, error};
 const INTERVAL: Duration = Duration::from_millis(100);
 
 pub async fn run(state: AppState) {
@@ -13,13 +13,7 @@ pub async fn run(state: AppState) {
         };
 
         let info = TrackInfo::read(&path);
-        info!(target: "music_player",
-            "Now playing: {} — {} [{}]",
-            info.clone().title.unwrap_or("Unknown Title".into()),
-            info.clone().artist.unwrap_or("Unknown Artist".into()),
-            info.clone().album.unwrap_or("Unknown Album".into()),
-        );
-        state.meta_tx.send_replace(Some(info));
+        state.meta_tx.send_replace(info.ok());
 
         match tokio::fs::read(&path).await {
             Ok(data) => {
