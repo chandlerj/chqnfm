@@ -1,6 +1,6 @@
 use std::{
     collections::HashSet,
-    path::{Path, PathBuf},
+    path::{Path, PathBuf, absolute},
 };
 
 /// Resolves `path` into a flat list of audio file paths.
@@ -42,7 +42,6 @@ fn expand_inner(path: &Path, visited: &mut HashSet<PathBuf>) -> Vec<PathBuf> {
     };
 
     let base = path.parent().unwrap_or(Path::new("."));
-    println!("{:?}", base);
     let mut result = Vec::new();
 
     for line in contents.lines() {

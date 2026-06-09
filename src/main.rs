@@ -11,6 +11,7 @@ use log::info;
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
     const BROADCAST_IP: &str = "0.0.0.0:3000";
     let state = AppState::new();
 
