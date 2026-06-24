@@ -6,7 +6,7 @@ use crate::metadata::TrackInfo;
 pub const CHUNK_SIZE: u32 = 3000;
 pub const CHANNEL_CAPACITY: usize = 128;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AppState {
     pub tx:       Arc<broadcast::Sender<Bytes>>,
     pub queue:    Arc<Mutex<VecDeque<PathBuf>>>,
@@ -27,4 +27,13 @@ impl AppState {
             meta_rx,
         }
     }
+    
+    pub async fn get_queue(&self) -> Vec<String> {
+        self.queue
+            .lock()
+            .await
+            .iter()
+            .map(|p| p.to_string_lossy().into_owned())
+            .collect()
+   }
 }

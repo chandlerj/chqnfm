@@ -1,6 +1,6 @@
 use std::{
     collections::HashSet,
-    path::{Path, PathBuf, absolute},
+    path::{Path, PathBuf},
 };
 
 /// Resolves `path` into a flat list of audio file paths.

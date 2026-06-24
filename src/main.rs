@@ -23,6 +23,9 @@ async fn main() {
     }
 
     tokio::spawn(producer::run(state.clone()));
+
+    info!("the current queue is: {:#?}", state.get_queue().await);
+
     let app = Router::new()
         .route("/",               get(handlers::index))
         .route("/stream",         get(handlers::stream))
@@ -32,7 +35,7 @@ async fn main() {
         .route("/queue/front",    delete(handlers::skip_track))
         .with_state(state);
 
-    info!(target: "main", "server is listening on {}", BROADCAST_IP);
+    info!("server is listening on {}", BROADCAST_IP);
     let listener = match tokio::net::TcpListener::bind(BROADCAST_IP).await {
         Ok(x) => x,
         Err(e) => { panic!("Could not bind to server to address {}:\n {}", BROADCAST_IP,e) }
