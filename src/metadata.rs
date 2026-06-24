@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use lofty::{
     file::{AudioFile, TaggedFileExt}, probe::Probe,  tag::Accessor
 };
@@ -44,7 +44,7 @@ pub struct TrackInfo {
     pub artist:  String,
     pub album:   String,
     pub bitrate: Result<u32, TrackInfoError>,
-    pub path:    String,
+    pub path:    PathBuf,
 }
 
 impl TrackInfo {
@@ -57,7 +57,7 @@ impl TrackInfo {
             artist:  tag.artist().map(|s| s.to_string()).unwrap_or("Unknown Artist".into()),
             album:   tag.album().map(|s| s.to_string()).unwrap_or("Unknown Album".into()),
             bitrate: properties.audio_bitrate().ok_or(TrackInfoError::NoBitrate),
-            path:    path.display().to_string(),
+            path:    path.to_path_buf(),
         })
     }
 }
