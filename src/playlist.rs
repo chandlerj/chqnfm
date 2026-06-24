@@ -2,11 +2,13 @@ use std::{
     collections::HashSet,
     path::{Path, PathBuf},
 };
+use crate::TrackInfo;
+use log::error;
 
 /// Resolves `path` into a flat list of audio file paths.
 /// If `path` is an `.m3u` file, its contents are expanded recursively.
 /// Cycles are detected via canonicalized paths and silently skipped.
-pub async fn expand(path: PathBuf) -> Vec<PathBuf> {
+pub async fn expand(path: PathBuf) -> Vec<TrackInfo> {
     tokio::task::spawn_blocking(move || {
         let mut visited = HashSet::new();
         expand_inner(&path, &mut visited)
@@ -15,28 +17,34 @@ pub async fn expand(path: PathBuf) -> Vec<PathBuf> {
     .unwrap_or_default()
 }
 
-fn expand_inner(path: &Path, visited: &mut HashSet<PathBuf>) -> Vec<PathBuf> {
+fn expand_inner(path: &Path, visited: &mut HashSet<PathBuf>) -> Vec<TrackInfo> {
     let canonical = match std::fs::canonicalize(path) {
         Ok(p) => p,
         Err(e) => {
-            eprintln!("Cannot resolve {:?}: {e}", path);
+            error!("Cannot resolve {:?}: {e}", path);
             return vec![];
         }
     };
 
     if !visited.insert(canonical) {
-        eprintln!("Cycle detected, skipping {:?}", path);
+        error!("Cycle detected, skipping {:?}", path);
         return vec![];
     }
 
     if !is_playlist(path) {
-        return vec![path.to_path_buf()];
+        return match TrackInfo::read(path) {
+            Ok(t) => vec![t],
+            Err(e) => {
+                error!("Cannot read track metadata from {}: {e}", path.display());
+                vec![]
+            }
+        }
     }
 
     let contents = match std::fs::read_to_string(path) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("Cannot read playlist {:?}: {e}", path);
+            error!("Cannot read playlist {:?}: {e}", path);
             return vec![];
         }
     };

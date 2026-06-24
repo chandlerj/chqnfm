@@ -85,7 +85,7 @@ pub async fn metadata_stream(
 pub async fn get_queue(State(state): State<AppState>) -> Json<Vec<String>> {
     let queue = state.queue.lock().await;
     let paths = queue.iter()
-        .filter_map(|p| p.to_str())
+        .filter_map(|p| Some(p.path.to_string_lossy()))
         .map(String::from)
         .collect();
     Json(paths)

@@ -8,11 +8,11 @@ pub const CHANNEL_CAPACITY: usize = 128;
 
 #[derive(Clone, Debug)]
 pub struct AppState {
-    pub tx:       Arc<broadcast::Sender<Bytes>>,
-    pub queue:    Arc<Mutex<VecDeque<PathBuf>>>,
-    pub notify:   Arc<Notify>,
-    pub meta_tx:  Arc<watch::Sender<Option<TrackInfo>>>,
-    pub meta_rx:  watch::Receiver<Option<TrackInfo>>,
+    pub tx:         Arc<broadcast::Sender<Bytes>>,
+    pub queue:      Arc<Mutex<VecDeque<TrackInfo>>>,
+    pub notify:     Arc<Notify>,
+    pub meta_tx:    Arc<watch::Sender<Option<TrackInfo>>>,
+    pub meta_rx:    watch::Receiver<Option<TrackInfo>>,
 }
 
 impl AppState {
@@ -28,12 +28,12 @@ impl AppState {
         }
     }
     
-    pub async fn get_queue(&self) -> Vec<String> {
+    pub async fn get_queue_str(&self) -> Vec<String> {
         self.queue
             .lock()
             .await
             .iter()
-            .map(|p| p.to_string_lossy().into_owned())
+            .map(|p| format!("{} - {}: {}", p.title, p.artist, p.album))
             .collect()
    }
 }

@@ -13,14 +13,13 @@ pub async fn run(state: AppState) {
             state.notify.notified().await;
         };
 
-        let info = TrackInfo::read(&path).ok();
         info!("now playing: {} - {}: {}", 
-            info.as_ref().unwrap().title,
-            info.as_ref().unwrap().artist,
-            info.as_ref().unwrap().album,
+            path.title,
+            path.artist,
+            path.album,
         );
-        state.meta_tx.send_replace(info.clone());
-        let track_bitrate = match &info.as_ref().unwrap().bitrate {
+        state.meta_tx.send_replace(Some(path.clone()));
+        let track_bitrate = match &path.bitrate {
             Ok(d) => *d as u32,
             Err(e) => {
                 error!("An error occurred trying to read the bitrate of the current song using default chunk size of {}: {}", CHUNK_SIZE, e);
@@ -28,7 +27,7 @@ pub async fn run(state: AppState) {
             }
         };
         let chunk_size = ((track_bitrate * 1000 / 8) * INTERVAL.as_millis() as u32 / 1000) as usize;
-        match tokio::fs::read(&path).await {
+        match tokio::fs::read(&path.path).await {
             Ok(data) => {
                 let start = tokio::time::Instant::now();
                 for (i, chunk) in data.chunks(chunk_size).enumerate() {

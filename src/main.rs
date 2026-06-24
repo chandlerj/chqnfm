@@ -8,6 +8,7 @@ use std::path::PathBuf;
 use axum::{Router, routing::{delete, get}};
 use state::AppState;
 use log::info;
+use metadata::TrackInfo;
 
 #[tokio::main]
 async fn main() {
@@ -24,7 +25,7 @@ async fn main() {
 
     tokio::spawn(producer::run(state.clone()));
 
-    info!("the current queue is: {:#?}", state.get_queue().await);
+    info!("the current queue is: {:#?}", state.get_queue_str().await);
 
     let app = Router::new()
         .route("/",               get(handlers::index))
