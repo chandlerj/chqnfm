@@ -9,6 +9,7 @@ use axum::{
 use axum::body::Body;
 use bytes::Bytes;
 use serde::Deserialize;
+use serde_json::{Value, json};
 use tokio_stream::{wrappers::BroadcastStream, StreamExt};
 use crate::{metadata::TrackInfo, state::AppState};
 
@@ -22,9 +23,9 @@ struct IndexTemplate {
 
 pub async fn index(State(state): State<AppState>) -> impl IntoResponse {
     let info = state.meta_rx.borrow().clone().unwrap();
-    let title = info.title.clone();
-    let artist = info.artist.clone();
-    let album = info.album.clone();
+    let title = info.title;
+    let artist = info.artist;
+    let album = info.album;
 
     IndexTemplate {
         title,
@@ -82,13 +83,18 @@ pub async fn metadata_stream(
     Sse::new(stream).keep_alive(KeepAlive::default())
 }
 
-pub async fn get_queue(State(state): State<AppState>) -> Json<Vec<String>> {
+
+pub async fn get_queue(State(state): State<AppState>) -> Json<Vec<Value>> {
     let queue = state.queue.lock().await;
-    let paths = queue.iter()
-        .filter_map(|p| Some(p.path.to_string_lossy()))
-        .map(String::from)
-        .collect();
-    Json(paths)
+    Json(
+        queue
+        .iter()
+        .map(|t| json!({
+            "title": t.title,
+            "artist": t.artist,
+            "album": t.album
+        }))
+        .collect())
 }
 
 #[derive(Deserialize)]

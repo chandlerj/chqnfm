@@ -16,7 +16,7 @@ async fn main() {
     const BROADCAST_IP: &str = "0.0.0.0:3000";
     let state = AppState::new();
 
-    // CLI testing: seed the queue with a path (audio file or .m3u playlist) if provided.
+    // seed the queue with a path (audio file or .m3u playlist) if provided.
     if let Some(path) = std::env::args().nth(1) {
         let tracks = playlist::expand(PathBuf::from(path)).await;
         state.queue.lock().await.extend(tracks);
