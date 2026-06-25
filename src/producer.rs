@@ -18,6 +18,9 @@ pub async fn run(state: AppState) {
             if let Some(p) = state.queue.lock().await.pop_front() {
                 break p;
             }
+            else {
+                info!("the queue is empty")
+            }
             state.notify.notified().await;
         };
 
@@ -26,11 +29,14 @@ pub async fn run(state: AppState) {
                 info!("prefetch hit for {:?}", track.path);
                 match rx.await {
                     Ok(d) => d,
-                    Err(_) => match tokio::fs::read(&track.path).await {
-                        Ok(t) => t,
-                        Err(e) => {
-                            error!("Failed to read {:?}: {e}", track);
-                            break;
+                    Err(e) => {
+                        error!("Failed to read from prefetch: {e}");
+                        match tokio::fs::read(&track.path).await {
+                            Ok(t) => t,
+                            Err(e) => {
+                                error!("Failed to read {:?}: {e}", track);
+                                break;
+                            }
                         }
                     }
                 }
