@@ -1,13 +1,12 @@
-use crate::metadata::TrackInfo;
+use crate::{
+    metadata::TrackInfo,
+    playlist::expand
+};
+use std::path::PathBuf;
 use frizbee::{match_list_parallel, Config, radix_sort_matches};
 use indexmap::IndexMap;
 use log::info;
 
-// attributes of the songs with regards to the queue
-// describes the allowed bahaviors on the song
-pub enum SongProperties {
-    Unskippable
-}
 
 #[derive(Clone, Debug)] 
 pub struct Songbank {
@@ -18,6 +17,13 @@ impl Songbank {
     pub fn new() -> Self {
         Self { 
             bank: IndexMap::new() 
+        }
+    }
+
+    pub async fn build_songbank(&mut self, path: String) {
+        let tracks = expand(PathBuf::from(path)).await;
+        for track in tracks {
+            self.store_track(&track);
         }
     }
 

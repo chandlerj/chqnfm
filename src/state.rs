@@ -35,5 +35,5 @@ impl AppState {
             .iter()
             .map(|p| format!("{} - {}: {}", p.title, p.artist, p.album))
             .collect()
-   }
+    }
 }
