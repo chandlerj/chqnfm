@@ -15,14 +15,17 @@ use metadata::TrackInfo;
 async fn main() {
     env_logger::init();
     const BROADCAST_IP: &str = "0.0.0.0:3000";
-    let state = AppState::new();
+    let mut state = AppState::new();
 
     // seed the queue with a path (audio file or .m3u playlist) if provided.
     if let Some(path) = std::env::args().nth(1) {
-        let tracks = playlist::expand(PathBuf::from(path)).await;
+        let tracks = playlist::expand(PathBuf::from(path.clone())).await;
         state.queue.lock().await.extend(tracks);
+        state.build_songbank(path).await;
         state.notify.notify_one();
     }
+
+    state.bank.lock().await.print_bank();
 
     tokio::spawn(producer::run(state.clone()));
 
