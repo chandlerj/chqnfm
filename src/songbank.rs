@@ -1,6 +1,6 @@
 use crate::metadata::TrackInfo;
-use std::collections::HashMap;
-use frizbee::{Match, match_list_parallel, Config, radix_sort_matches};
+use frizbee::{match_list_parallel, Config, radix_sort_matches};
+use indexmap::IndexMap;
 use log::info;
 
 // attributes of the songs with regards to the queue
@@ -11,29 +11,32 @@ pub enum SongProperties {
 
 #[derive(Clone, Debug)] 
 pub struct Songbank {
-   bank: HashMap<String, TrackInfo>,
+   bank: IndexMap<String, TrackInfo>,
 }
 
 impl Songbank {
     pub fn new() -> Self {
         Self { 
-            bank: HashMap::new() 
+            bank: IndexMap::new() 
         }
     }
 
     fn store_track(&mut self, track: &TrackInfo) {
         let key = track.get_track_key_id();
         match self.bank.insert(key, track.clone()) {
-            Some(_) => {info!("The track {} - {} : {} was already added to the song bank. updating entry with metadata from this insert...", &track.title, &track.artist, &track.album)},
-            None => (),
+            Some(t) => {info!("The track {} - {} : {} was already inserted into the songbank. Updating with most recent metadata:\n{:?}", t.title, t.artist, t.album, &track)}
+            None => ()
         }
     }
 
-    fn search(&self, query: &str) -> Vec<TrackInfo> {
-        let haystacks: Vec<&String> = self.bank.keys().collect();
+    fn search(&self, query: &str) -> Vec<&TrackInfo> {
+        let haystacks: Vec<&str> = self.bank.keys().map(|t| t.as_str()).collect();
         let mut matches = match_list_parallel(query, &haystacks, &Config::default(), 8);
         radix_sort_matches(&mut matches);
         
-        matches.iter().map(|m| self.bank[m.])
+        matches.iter()
+            .filter_map(|m| self.bank.get_index(m.index as usize))
+            .map(|(_, track)| track)
+            .collect()
     }
 }
