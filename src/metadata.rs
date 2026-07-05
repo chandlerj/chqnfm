@@ -60,4 +60,8 @@ impl TrackInfo {
             path:    path.to_path_buf(),
         })
     }
+
+    pub fn get_track_key_id(&self) -> String {
+        format!("{}{}{}", self.title, self.artist, self.album)
+    }
 }

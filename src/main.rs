@@ -3,6 +3,7 @@ mod metadata;
 mod playlist;
 mod producer;
 mod state;
+mod songbank;
 
 use std::path::PathBuf;
 use axum::{Router, routing::{delete, get}};

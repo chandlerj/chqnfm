@@ -254,6 +254,7 @@ dependencies = [
  "axum",
  "bytes",
  "env_logger",
+ "frizbee",
  "id3",
  "lofty",
  "log",
@@ -335,6 +336,12 @@ checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
 dependencies = [
  "percent-encoding",
 ]
+
+[[package]]
+name = "frizbee"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf1203300031cb4fbd90e77833d9b2455f609ba9ab7c1703990d09ebbcd8b5ef"
 
 [[package]]
 name = "futures-channel"
