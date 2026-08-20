@@ -39,7 +39,8 @@ impl Songbank {
         let haystacks: Vec<&str> = self.bank.keys().map(|t| t.as_str()).collect();
         let matches = match_list_parallel(query, &haystacks, &Config::default(), 8);
         
-        matches.iter()
+        matches
+            .iter()
             .filter_map(|m| self.bank.get_index(m.index as usize))
             .map(|(_, track)| track)
             .collect()
