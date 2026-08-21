@@ -35,14 +35,14 @@ impl Songbank {
         }
     }
 
-    fn search(&self, query: &str) -> Vec<&TrackInfo> {
+    pub fn search(&self, query: &str) -> Vec<TrackInfo> {
         let haystacks: Vec<&str> = self.bank.keys().map(|t| t.as_str()).collect();
         let matches = match_list_parallel(query, &haystacks, &Config::default(), 8);
         
         matches
             .iter()
             .filter_map(|m| self.bank.get_index(m.index as usize))
-            .map(|(_, track)| track)
+            .map(|(_, track)| track.clone())
             .collect()
     }
 

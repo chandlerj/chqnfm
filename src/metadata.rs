@@ -52,8 +52,9 @@ impl TrackInfo {
         let file = Probe::open(path)?.guess_file_type()?.read()?;
         let tag = file.primary_tag().ok_or(TrackInfoError::NoTag)?; 
         let properties = file.properties();
+
         Ok(Self {
-            title:   tag.title().map(|s| s.to_string()).unwrap_or("Unknown Title".into()),
+            title:   tag.title().map(|s| s.to_string()).unwrap_or(path.to_str().unwrap().into()),
             artist:  tag.artist().map(|s| s.to_string()).unwrap_or("Unknown Artist".into()),
             album:   tag.album().map(|s| s.to_string()).unwrap_or("Unknown Album".into()),
             bitrate: properties.audio_bitrate().ok_or(TrackInfoError::NoBitrate),
