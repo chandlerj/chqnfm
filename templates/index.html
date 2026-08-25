@@ -56,7 +56,11 @@
     <source src="/stream" type="audio/mpeg">
   </audio>
   <button id="play-btn" class="play-btn" aria-label="Play or pause"
-    hx-on:click="const a = document.getElementById('player'); a.paused ? a.play() : a.pause();">
+    hx-on:click="
+      const a = document.getElementById('player');
+      if (a.paused) { a.src = '/stream?t=' + Date.now(); a.load(); a.play(); }
+      else { a.pause(); }
+    ">
     <svg class="icon icon-play"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     <svg class="icon icon-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
   </button>
