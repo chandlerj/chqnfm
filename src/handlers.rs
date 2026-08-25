@@ -21,6 +21,14 @@ struct IndexTemplate {
     album:  String,
 }
 
+#[derive(Template)]
+#[template(path = "_now_playing.html")]
+struct NowPlayingTemplate {
+    title:  String,
+    artist: String,
+    album:  String,
+}
+
 pub async fn index(State(state): State<AppState>) -> impl IntoResponse {
     let info = state.meta_rx.borrow().clone().unwrap();
     let title = info.title;
@@ -32,6 +40,16 @@ pub async fn index(State(state): State<AppState>) -> impl IntoResponse {
         artist,
         album
     }
+}
+
+fn render_now_playing(info: TrackInfo) -> String {
+    NowPlayingTemplate {
+        title:  info.title,
+        artist: info.artist,
+        album:  info.album,
+    }
+    .render()
+    .unwrap_or_default()
 }
 
 pub async fn stream(State(state): State<AppState>) -> Response {
@@ -63,16 +81,16 @@ pub async fn metadata_stream(
 
         // Send whatever is currently playing before waiting for changes.
         if let Some(info) = watch_rx.borrow_and_update().clone() {
-            let data = serde_json::to_string(&info).unwrap_or_default();
-            if tx.send(Ok(Event::default().event("track").data(data))).is_err() {
+            let html = render_now_playing(info);
+            if tx.send(Ok(Event::default().event("track").data(html))).is_err() {
                 return;
             }
         }
 
         while watch_rx.changed().await.is_ok() {
             if let Some(info) = watch_rx.borrow_and_update().clone() {
-                let data = serde_json::to_string(&info).unwrap_or_default();
-                if tx.send(Ok(Event::default().event("track").data(data))).is_err() {
+                let html = render_now_playing(info);
+                if tx.send(Ok(Event::default().event("track").data(html))).is_err() {
                     return; // Client disconnected.
                 }
             }

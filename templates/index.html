@@ -23,26 +23,16 @@
     #album  { font-size: 0.9rem; color: #666; }
     audio { width: 320px; }
   </style>
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <script src="https://unpkg.com/htmx-ext-sse@2.2.2"></script>
 </head>
 <body>
   <h1>chqn fm</h1>
-  <div id="now-playing">
-    <div id="title">{{ title }}</div>
-    <div id="artist">{{ artist }}</div>
-    <div id="album">{{ album }}</div>
+  <div id="now-playing" hx-ext="sse" sse-connect="/metadata/stream" sse-swap="track">
+    {% include "_now_playing.html" %}
   </div>
   <audio controls autoplay>
     <source src="/stream" type="audio/mpeg">
   </audio>
-  <script>
-    function updateDisplay(t) {
-      document.getElementById('title').textContent  = t.title  ?? '—';
-      document.getElementById('artist').textContent = t.artist ?? '—';
-      document.getElementById('album').textContent  = t.album  ?? '—';
-    }
-
-    const es = new EventSource('/metadata/stream');
-    es.addEventListener('track', e => updateDisplay(JSON.parse(e.data)));
-  </script>
 </body>
 </html>
