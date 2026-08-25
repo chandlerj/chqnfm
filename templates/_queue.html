@@ -1,6 +1,5 @@
-
+<h1>Queue</h1>
+<hr/>
 {% for track in queue %}
-    <div id="title">{{ track.title }}</div>
-    <div id="artist">{{ track.artist }}</div>
-    <div id="album">{{ track.album }}</div>
+    <p id="q-item">{{ track.title }} - {{ track.artist }} [{{ track.album }}]</p>
 {% endfor %}
