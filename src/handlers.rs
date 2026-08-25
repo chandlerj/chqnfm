@@ -29,6 +29,12 @@ struct NowPlayingTemplate {
     album:  String,
 }
 
+#[derive(Template)]
+#[template(path = "_queue.html")]
+struct QueueTemplate {
+    queue: Vec<TrackInfo>
+}
+
 pub async fn index(State(state): State<AppState>) -> impl IntoResponse {
     let info = state.meta_rx.borrow().clone().unwrap();
     let title = info.title;
@@ -91,7 +97,7 @@ pub async fn metadata_stream(
             if let Some(info) = watch_rx.borrow_and_update().clone() {
                 let html = render_now_playing(info);
                 if tx.send(Ok(Event::default().event("track").data(html))).is_err() {
-                    return; // Client disconnected.
+                    return;
                 }
             }
         }
@@ -102,17 +108,15 @@ pub async fn metadata_stream(
 }
 
 
-pub async fn get_queue(State(state): State<AppState>) -> Json<Vec<Value>> {
-    let queue = state.queue.lock().await;
-    Json(
-        queue
+pub async fn get_queue(State(state): State<AppState>) -> impl IntoResponse {
+    let queue_state = state.queue.lock().await;
+    let queue = queue_state
         .iter()
-        .map(|t| json!({
-            "title": t.title,
-            "artist": t.artist,
-            "album": t.album
-        }))
-        .collect())
+        .cloned()
+        .collect();
+    QueueTemplate{
+        queue
+    }
 }
 
 #[derive(Deserialize)]
