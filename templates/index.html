@@ -21,7 +21,26 @@
     #title  { font-size: 1.6rem; font-weight: bold; }
     #artist { font-size: 1.1rem; color: #aaa; }
     #album  { font-size: 0.9rem; color: #666; }
-    audio { width: 320px; }
+    audio { display: none; }
+    .play-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .play-btn:hover  { background: #222; border-color: #555; }
+    .play-btn:active { background: #2a2a2a; }
+    .play-btn .icon       { width: 22px; height: 22px; fill: currentColor; }
+    .play-btn .icon-pause { display: none; }
+    .play-btn.playing .icon-play  { display: none; }
+    .play-btn.playing .icon-pause { display: block; }
   </style>
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <script src="https://unpkg.com/htmx-ext-sse@2.2.2"></script>
@@ -31,8 +50,15 @@
   <div id="now-playing" hx-ext="sse" sse-connect="/metadata/stream" sse-swap="track">
     {% include "_now_playing.html" %}
   </div>
-  <audio controls autoplay>
+  <audio id="player" autoplay
+    hx-on:play="document.getElementById('play-btn').classList.add('playing')"
+    hx-on:pause="document.getElementById('play-btn').classList.remove('playing')">
     <source src="/stream" type="audio/mpeg">
   </audio>
+  <button id="play-btn" class="play-btn" aria-label="Play or pause"
+    hx-on:click="const a = document.getElementById('player'); a.paused ? a.play() : a.pause();">
+    <svg class="icon icon-play"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <svg class="icon icon-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+  </button>
 </body>
 </html>
