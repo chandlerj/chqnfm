@@ -6,7 +6,7 @@ use crate::{
 use tokio::sync::oneshot;
 use log::{info, error};
 
-const INTERVAL: Duration = Duration::from_millis(500);
+const INTERVAL: Duration = Duration::from_millis(1000);
 
 pub async fn run(state: AppState) {
     let mut next_song: Option<(TrackInfo, oneshot::Receiver<Vec<u8>>)> = None;
