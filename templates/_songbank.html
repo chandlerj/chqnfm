@@ -1,0 +1,17 @@
+<h1>Search Songbank</h1>
+<hr/>
+<input class="form-control" type="search"
+       name="search" placeholder="Search Songbank..."
+       hx-post="/songbank" hx-trigger="input changed, load"
+       hx-target="#search-results" hx-indicator=".htmx-indicator"/>
+<table>
+    <thead>
+    <tr>
+        <th>Artist</th>
+        <th>Album</th>
+        <th>Song</th>
+    </tr>
+    </thead>
+    <tbody id="search-results">
+    </tbody>
+</table>

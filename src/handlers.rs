@@ -4,12 +4,12 @@ use axum::{
     extract::State,
     http::StatusCode,
     response::{sse::{Event, KeepAlive, Sse}, IntoResponse, Response},
+    Form,
     Json,
 };
 use axum::body::Body;
 use bytes::Bytes;
 use serde::Deserialize;
-use serde_json::{Value, json};
 use tokio_stream::{wrappers::BroadcastStream, StreamExt};
 use crate::{metadata::TrackInfo, state::AppState};
 
@@ -33,6 +33,17 @@ struct NowPlayingTemplate {
 #[template(path = "_queue.html")]
 struct QueueTemplate {
     queue: Vec<TrackInfo>
+}
+
+#[derive(Template)]
+#[template(path="_songbank_results.html")]
+struct SongbankTemplate {
+    results: Vec<TrackInfo>
+}
+
+#[derive(Deserialize)]
+pub struct SongbankInput {
+    search: String
 }
 
 pub async fn index(State(state): State<AppState>) -> impl IntoResponse {
@@ -116,6 +127,16 @@ pub async fn get_queue(State(state): State<AppState>) -> impl IntoResponse {
         .collect();
     QueueTemplate{
         queue
+    }
+}
+
+
+pub async fn post_songbank(State(state): State<AppState>, Form(input): Form<SongbankInput>) -> impl IntoResponse {
+    let bank = state.bank.lock().await;
+    let results = bank.search(&input.search);
+
+    SongbankTemplate{
+        results
     }
 }
 

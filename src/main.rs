@@ -6,7 +6,7 @@ mod state;
 mod songbank;
 
 use std::path::PathBuf;
-use axum::{Router, routing::{delete, get}};
+use axum::{Router, routing::{delete, get, post}};
 use state::AppState;
 use log::info;
 use metadata::TrackInfo;
@@ -37,6 +37,7 @@ async fn main() {
         .route("/now-playing",    get(handlers::now_playing))
         .route("/metadata/stream",get(handlers::metadata_stream))
         .route("/queue",          get(handlers::get_queue).post(handlers::add_track))
+        .route("/songbank", post(handlers::post_songbank))
         .route("/queue/front",    delete(handlers::skip_track))
         .with_state(state);
 

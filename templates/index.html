@@ -73,7 +73,9 @@
     <svg class="icon icon-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
   </button>
 
-  <div hx-get="/queue" hx-trigger="load, every 2s" hx-swap="innerHTML"/>
+  <div>
+  <div hx-get="/queue" hx-trigger="load, every 2s" hx-swap="innerHTML"></div>
+  {% include "_songbank.html" %}
 
 </body>
 </html>
