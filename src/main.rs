@@ -36,7 +36,7 @@ async fn main() {
         .route("/stream",         get(handlers::stream))
         .route("/now-playing",    get(handlers::now_playing))
         .route("/metadata/stream",get(handlers::metadata_stream))
-        .route("/queue",          get(handlers::get_queue).post(handlers::add_track))
+        .route("/queue",          get(handlers::get_queue).post(handlers::add_track_to_queue))
         .route("/songbank", post(handlers::post_songbank))
         .route("/queue/front",    delete(handlers::skip_track))
         .with_state(state);

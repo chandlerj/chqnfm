@@ -1,7 +1,7 @@
 use std::{convert::Infallible, path::PathBuf};
 use askama::Template;
 use axum::{
-    extract::State,
+    extract::{State, Path},
     http::StatusCode,
     response::{sse::{Event, KeepAlive, Sse}, IntoResponse, Response},
     Form,
@@ -11,7 +11,10 @@ use axum::body::Body;
 use bytes::Bytes;
 use serde::Deserialize;
 use tokio_stream::{wrappers::BroadcastStream, StreamExt};
-use crate::{metadata::TrackInfo, state::AppState};
+use crate::{
+    metadata::TrackInfo, 
+    state::AppState
+};
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -141,20 +144,29 @@ pub async fn post_songbank(State(state): State<AppState>, Form(input): Form<Song
 }
 
 #[derive(Deserialize)]
-pub struct AddTrack {
-    pub path: String,
+pub struct AddTrackToQueue {
+    title: String,
+    album: String,
+    artist: String
+
 }
 
-pub async fn add_track(
+pub async fn add_track_to_queue(
     State(state): State<AppState>,
-    Json(body): Json<AddTrack>,
+    Path(path): Path<AddTrackToQueue>,
 ) -> StatusCode {
-    let tracks = crate::playlist::expand(PathBuf::from(body.path)).await;
-    if tracks.is_empty() {
-        return StatusCode::UNPROCESSABLE_ENTITY;
+    let track_id = TrackInfo::generate_track_key_id(&path.title, &path.artist, &path.album);
+    { // scope to drop lock immediately ASAP
+        let bank = state.bank.lock().await;
+        if let Some(track) = bank.get_track_from_id(&track_id) {
+            state.queue.lock().await.push_back(track);
+        }
+        else {
+            return StatusCode::NOT_FOUND
+        }
     }
-    state.queue.lock().await.extend(tracks);
-    state.notify.notify_one();
+   
+
     StatusCode::OK
 }
 

@@ -65,4 +65,8 @@ impl TrackInfo {
     pub fn get_track_key_id(&self) -> String {
         format!("{}{}{}", self.title, self.artist, self.album)
     }
+
+    pub fn generate_track_key_id(title: &str, artist: &str, album: &str) -> String {
+        format!("{}{}{}", title, artist, album)
+    }
 }

@@ -27,6 +27,10 @@ impl Songbank {
         }
     }
 
+    pub fn get_track_from_id(&self, track_id: &str) -> Option<TrackInfo> {
+        self.bank.get(track_id).cloned()
+    }
+
     fn store_track(&mut self, track: &TrackInfo) {
         let key = track.get_track_key_id();
         match self.bank.insert(key, track.clone()) {
