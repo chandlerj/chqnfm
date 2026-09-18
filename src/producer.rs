@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{process::exit, time::Duration};
 use crate::{
     state::{AppState, CHUNK_SIZE},
     metadata::TrackInfo
@@ -19,7 +19,18 @@ pub async fn run(state: AppState) {
                 break p;
             }
             else {
-                info!("the queue is empty")
+
+                let bank = state.bank.lock().await;
+                if let Some(next) = bank.get_random_track() {
+                    info!("No song was in the queue; randomly selected: {} - {}: {}", next.title, next.artist, next.album);
+                    break next;
+                    
+                }
+                else {
+                    panic!("Failed to find a next track!! Crashing out...")
+                }
+
+
             }
             state.notify.notified().await;
         };

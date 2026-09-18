@@ -3,9 +3,12 @@ use crate::{
     playlist::expand
 };
 use std::path::PathBuf;
-use frizbee::{match_list_parallel, Config, radix_sort_matches};
+use frizbee::{match_list_parallel, Config};
 use indexmap::IndexMap;
 use log::info;
+use rand::{
+    prelude::IteratorRandom,
+};
 
 
 #[derive(Clone, Debug)] 
@@ -48,6 +51,14 @@ impl Songbank {
             .filter_map(|m| self.bank.get_index(m.index as usize))
             .map(|(_, track)| track.clone())
             .collect()
+    }
+
+    pub fn get_random_track(&self) -> Option<TrackInfo> {
+        let mut rng = rand::rng();
+        self.bank
+            .values()
+            .choose(&mut rng)
+            .cloned()
     }
 
     pub fn print_bank(&self) {

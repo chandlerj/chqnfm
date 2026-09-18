@@ -3,6 +3,6 @@
         <td>{{ track.artist }}</td>
         <td>{{ track.album }}</td>
         <td>{{ track.title }}</td>
-        <td><button href="/queue/add?title={{ track.title }}&album={{ track.album }}&artist={{ track.artist }}">add to queue</button></td>
+        <td><button hx-post="/queue/add?title={{ track.title }}&album={{ track.album }}&artist={{ track.artist }}" hx-swap="none">add to queue</button></td>
     </tr>
 {% endfor %}

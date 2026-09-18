@@ -19,8 +19,8 @@ async fn main() {
 
     // seed the queue with a path (audio file or .m3u playlist) if provided.
     if let Some(path) = std::env::args().nth(1) {
-        let tracks = playlist::expand(PathBuf::from(path.clone())).await;
-        state.queue.lock().await.extend(tracks);
+        // let tracks = playlist::expand(PathBuf::from(path.clone())).await;
+        // state.queue.lock().await.extend(tracks);
         state.build_songbank(path).await;
         state.notify.notify_one();
     }
@@ -28,8 +28,6 @@ async fn main() {
     state.bank.lock().await.print_bank();
 
     tokio::spawn(producer::run(state.clone()));
-
-    info!("the current queue is: {:#?}", state.get_queue_str().await);
 
     let app = Router::new()
         .route("/",               get(handlers::index))

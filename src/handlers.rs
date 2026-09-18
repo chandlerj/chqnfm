@@ -50,7 +50,16 @@ pub struct SongbankInput {
 }
 
 pub async fn index(State(state): State<AppState>) -> impl IntoResponse {
-    let info = state.meta_rx.borrow().clone().unwrap();
+    let info = match state.meta_rx.borrow().clone() {
+        Some(i) => i,
+        None => {
+            return IndexTemplate {
+                title: "Not playing".into(),
+                album: "Not playing".into(),
+                artist: "Not playing".into(),
+            }
+        }
+    };
     let title = info.title;
     let artist = info.artist;
     let album = info.album;
@@ -166,7 +175,6 @@ pub async fn add_track_to_queue(
         }
     }
    
-
     StatusCode::OK
 }
 
