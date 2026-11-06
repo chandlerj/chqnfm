@@ -67,6 +67,8 @@ impl TrackInfo {
     }
 
     pub fn generate_track_key_id(title: &str, artist: &str, album: &str) -> String {
-        format!("{}{}{}", title, artist, album)
+        let a = format!("{}{}{}", title, artist, album);
+        println!("{}", a);
+        a
     }
 }

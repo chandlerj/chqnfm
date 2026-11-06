@@ -31,6 +31,7 @@ impl Songbank {
     }
 
     pub fn get_track_from_id(&self, track_id: &str) -> Option<TrackInfo> {
+        println!("{}", track_id);
         self.bank.get(track_id).cloned()
     }
 
@@ -62,7 +63,6 @@ impl Songbank {
     }
 
     pub fn print_bank(&self) {
-        println!("track bank thus far:");
         for (id, track) in &self.bank {
             println!("{id}: {:?}", track);
         }

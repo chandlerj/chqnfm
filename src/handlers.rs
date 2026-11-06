@@ -164,17 +164,17 @@ pub async fn add_track_to_queue(
     State(state): State<AppState>,
     Path(path): Path<AddTrackToQueue>,
 ) -> StatusCode {
+    println!("hit");
     let track_id = TrackInfo::generate_track_key_id(&path.title, &path.artist, &path.album);
-    { // scope to drop lock immediately ASAP
-        let bank = state.bank.lock().await;
-        if let Some(track) = bank.get_track_from_id(&track_id) {
-            state.queue.lock().await.push_back(track);
-        }
-        else {
-            return StatusCode::NOT_FOUND
-        }
+
+    let bank = state.bank.lock().await;
+    if let Some(track) = bank.get_track_from_id(&track_id) {
+        state.queue.lock().await.push_back(track);
     }
-   
+    else {
+        return StatusCode::NOT_FOUND
+    }
+
     StatusCode::OK
 }
 
