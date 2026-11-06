@@ -10,6 +10,7 @@ use axum::{Router, routing::{delete, get, post}};
 use state::AppState;
 use log::info;
 use metadata::TrackInfo;
+use tower_http::services::ServeDir;
 
 #[tokio::main]
 async fn main() {
@@ -37,6 +38,7 @@ async fn main() {
         .route("/queue",          get(handlers::get_queue).post(handlers::add_track_to_queue))
         .route("/songbank", post(handlers::post_songbank))
         .route("/queue/front",    delete(handlers::skip_track))
+        .nest_service("/static", ServeDir::new("static"))
         .with_state(state);
 
     info!("server is listening on {}", BROADCAST_IP);
